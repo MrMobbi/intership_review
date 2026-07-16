@@ -1,6 +1,6 @@
 
 
-all: create label taint helm grafana
+all: create label taint helm grafana prometheus loki alloy
 
 create:
 	k3d cluster create internship \
@@ -71,6 +71,14 @@ loki:
 	--wait \
 	--timeout 15m
 
+alloy:
+	helm upgrade --install alloy \
+	grafana/alloy \
+	--namespace monitoring \
+	--values alloy_values.yaml \
+	--wait \
+	--timeout 10m
+
 info:
 	@printf "  %-15s %s\n" "### k3d INFO ###"
 	kubectl cluster-info
@@ -96,3 +104,4 @@ re: clean all
 		helm \
 		prometheus \
 		loki \
+		alloy \
