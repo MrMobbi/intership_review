@@ -13,6 +13,10 @@ create:
 	--port-add "127.0.0.1:8080:80@loadbalancer"
 	k3d cluster edit internship \
 	--port-add "127.0.0.1:8443:443@loadbalancer"
+	k3d cluster edit internship \
+	--port-add "127.0.0.1:80:80@loadbalancer"
+	k3d cluster edit internship \
+	--port-add "127.0.0.1:443:443@loadbalancer"
 
 label:
 	kubectl label node k3d-internship-agent-0 \
@@ -69,6 +73,7 @@ prometheus:
 	--values values/prometheus_values.yaml \
 	--wait \
 	--timeout 15m
+	kubectl apply -f ingress/prometheus_ingress.yaml
 
 loki:
 	helm upgrade --install loki \
