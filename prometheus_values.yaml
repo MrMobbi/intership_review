@@ -1,0 +1,78 @@
+grafana:
+  enabled: false
+
+alertmanager:
+  enabled: false
+
+# These control-plane components are packaged differently in k3s.
+kubeEtcd:
+  enabled: false
+
+kubeControllerManager:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+prometheusOperator:
+  nodeSelector:
+    workload-role: monitoring
+
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: monitoring
+      effect: NoSchedule
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+kube-state-metrics:
+  nodeSelector:
+    workload-role: monitoring
+
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: monitoring
+      effect: NoSchedule
+
+prometheus:
+  prometheusSpec:
+    nodeSelector:
+      workload-role: monitoring
+
+    tolerations:
+      - key: dedicated
+        operator: Equal
+        value: monitoring
+        effect: NoSchedule
+
+    retention: 24h
+
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
+
+# This must run on every node to provide node-level metrics.
+prometheus-node-exporter:
+  tolerations:
+    - operator: Exists

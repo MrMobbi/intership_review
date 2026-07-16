@@ -1,6 +1,6 @@
 
 
-all: create label taint grafana
+all: create label taint helm grafana
 
 create:
 	k3d cluster create internship \
@@ -31,12 +31,19 @@ taint:
 	dedicated=monitoring:NoSchedule \
   	--overwrite
 
-grafana:
+helm:
 	helm repo add grafana-community \
 	https://grafana-community.github.io/helm-charts \
 	--force-update
+	helm repo add prometheus-community \
+	https://prometheus-community.github.io/helm-charts
+	helm repo add grafana \
+	https://grafana.github.io/helm-charts
+	helm repo add grafana-community \
+	https://grafana-community.github.io/helm-charts
 	helm repo update
-	helm search repo grafana-community/grafana
+
+grafana:
 	helm upgrade --install grafana \
 	grafana-community/grafana \
 	--namespace monitoring \
@@ -47,6 +54,14 @@ grafana:
 
 grafana-pwd:
 	   kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+prometheus:
+	helm upgrade --install prometheus \
+	prometheus-community/kube-prometheus-stack \
+	--namespace monitoring \
+	--values prometheus_values.yaml \
+	--wait \
+	--timeout 15m
 
 info:
 	@printf "  %-15s %s\n" "### k3d INFO ###"
@@ -70,3 +85,5 @@ re: clean all
 		taint \
 		grafana \
 		grafana-pwd \
+		helm \
+		prometheus \
