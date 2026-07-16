@@ -54,7 +54,7 @@ grafana:
 	grafana-community/grafana \
 	--namespace monitoring \
 	--create-namespace \
-	--values grafana_values.yaml \
+	--values values/grafana_values.yaml \
 	--wait \
 	--timeout 10m
 
@@ -65,7 +65,7 @@ prometheus:
 	helm upgrade --install prometheus \
 	prometheus-community/kube-prometheus-stack \
 	--namespace monitoring \
-	--values prometheus_values.yaml \
+	--values values/prometheus_values.yaml \
 	--wait \
 	--timeout 15m
 
@@ -73,7 +73,7 @@ loki:
 	helm upgrade --install loki \
 	grafana-community/loki \
 	--namespace monitoring \
-	--values loki_values.yaml \
+	--values values/loki_values.yaml \
 	--wait \
 	--timeout 15m
 
@@ -81,7 +81,7 @@ alloy:
 	helm upgrade --install alloy \
 	grafana/alloy \
 	--namespace monitoring \
-	--values alloy_values.yaml \
+	--values values/alloy_values.yaml \
 	--wait \
 	--timeout 10m
 
