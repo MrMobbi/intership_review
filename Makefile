@@ -63,6 +63,14 @@ prometheus:
 	--wait \
 	--timeout 15m
 
+loki:
+	helm upgrade --install loki \
+	grafana-community/loki \
+	--namespace monitoring \
+	--values loki_values.yaml \
+	--wait \
+	--timeout 15m
+
 info:
 	@printf "  %-15s %s\n" "### k3d INFO ###"
 	kubectl cluster-info
@@ -87,3 +95,4 @@ re: clean all
 		grafana-pwd \
 		helm \
 		prometheus \
+		loki \
