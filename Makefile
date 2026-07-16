@@ -57,6 +57,7 @@ grafana:
 	--values values/grafana_values.yaml \
 	--wait \
 	--timeout 10m
+	kubectl apply -f ingress/grafana_ingress.yaml
 
 grafana-pwd:
 	   kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
