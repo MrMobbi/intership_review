@@ -9,6 +9,10 @@ create:
 	--api-port 127.0.0.1:6550 \
   	--k3s-arg "--disable=traefik@server:0" \
   	--wait
+	k3d cluster edit internship \
+	--port-add "127.0.0.1:8080:80@loadbalancer"
+	k3d cluster edit internship \
+	--port-add "127.0.0.1:8443:443@loadbalancer"
 
 label:
 	kubectl label node k3d-internship-agent-0 \
@@ -41,6 +45,8 @@ helm:
 	https://grafana.github.io/helm-charts
 	helm repo add grafana-community \
 	https://grafana-community.github.io/helm-charts
+	helm repo add ingress-nginx \
+	https://kubernetes.github.io/ingress-nginx
 	helm repo update
 
 grafana:
@@ -79,6 +85,19 @@ alloy:
 	--wait \
 	--timeout 10m
 
+nginx:
+	helm upgrade --install ingress-nginx \
+	ingress-nginx/ingress-nginx \
+	--namespace ingress-nginx \
+	--create-namespace \
+	--set controller.nodeSelector.workload-role=monitoring \
+	--set controller.tolerations[0].key=dedicated \
+	--set controller.tolerations[0].operator=Equal \
+	--set controller.tolerations[0].value=monitoring \
+	--set controller.tolerations[0].effect=NoSchedule \
+	--wait \
+	--timeout 10m
+
 info:
 	@printf "  %-15s %s\n" "### k3d INFO ###"
 	kubectl cluster-info
@@ -105,3 +124,4 @@ re: clean all
 		prometheus \
 		loki \
 		alloy \
+		nginx \
