@@ -1,5 +1,7 @@
 
 
+all: create label
+
 create:
 	k3d cluster create internship \
   	--servers 1 \
@@ -34,6 +36,10 @@ info:
 clean:
 	k3d cluster delete internship
 
+re: clean all
+
 .PHONY: create \
 		info \
 		clean \
+		all \
+		re \
