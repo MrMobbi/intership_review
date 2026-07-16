@@ -15,3 +15,7 @@ info:
 
 clean:
 	k3d cluster delete internship
+
+.PHONY: create \
+		info \
+		clean \
