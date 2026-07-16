@@ -63,7 +63,6 @@ gateway:
     limits:
       memory: 128Mi
 
-# Not needed for this small demonstration.
 lokiCanary:
   enabled: true
 

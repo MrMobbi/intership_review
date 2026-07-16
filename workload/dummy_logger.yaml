@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummy-logger
+  namespace: demo
+  labels:
+    app: dummy-logger
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dummy-logger
+  template:
+    metadata:
+      labels:
+        app: dummy-logger
+    spec:
+      nodeSelector:
+        workload-role: worker
+      containers:
+        - name: logger
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              counter=1
+
+              while true; do
+                level="info"
+                message="request processed successfully"
+
+                if [ $((counter % 10)) -eq 0 ]; then
+                  level="error"
+                  message="simulated database connection error"
+                elif [ $((counter % 5)) -eq 0 ]; then
+                  level="warn"
+                  message="simulated slow request"
+                fi
+
+                echo "$(date -Iseconds) level=${level} app=dummy-logger pod=${POD_NAME} node=${NODE_NAME} request_id=${counter} message=\"${message}\""
+
+                counter=$((counter + 1))
+                sleep 3
+              done
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi

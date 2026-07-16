@@ -1,6 +1,6 @@
 
 
-all: create label taint helm grafana prometheus loki alloy
+all: create label taint helm nginx grafana prometheus loki alloy workload
 
 create:
 	k3d cluster create internship \
@@ -9,10 +9,6 @@ create:
 	--api-port 127.0.0.1:6550 \
   	--k3s-arg "--disable=traefik@server:0" \
   	--wait
-	k3d cluster edit internship \
-	--port-add "127.0.0.1:8080:80@loadbalancer"
-	k3d cluster edit internship \
-	--port-add "127.0.0.1:8443:443@loadbalancer"
 	k3d cluster edit internship \
 	--port-add "127.0.0.1:80:80@loadbalancer"
 	k3d cluster edit internship \
@@ -53,6 +49,19 @@ helm:
 	https://kubernetes.github.io/ingress-nginx
 	helm repo update
 
+nginx:
+	helm upgrade --install ingress-nginx \
+	ingress-nginx/ingress-nginx \
+	--namespace ingress-nginx \
+	--create-namespace \
+	--set controller.nodeSelector.workload-role=monitoring \
+	--set controller.tolerations[0].key=dedicated \
+	--set controller.tolerations[0].operator=Equal \
+	--set controller.tolerations[0].value=monitoring \
+	--set controller.tolerations[0].effect=NoSchedule \
+	--wait \
+	--timeout 10m
+
 grafana:
 	helm upgrade --install grafana \
 	grafana-community/grafana \
@@ -91,18 +100,8 @@ alloy:
 	--wait \
 	--timeout 10m
 
-nginx:
-	helm upgrade --install ingress-nginx \
-	ingress-nginx/ingress-nginx \
-	--namespace ingress-nginx \
-	--create-namespace \
-	--set controller.nodeSelector.workload-role=monitoring \
-	--set controller.tolerations[0].key=dedicated \
-	--set controller.tolerations[0].operator=Equal \
-	--set controller.tolerations[0].value=monitoring \
-	--set controller.tolerations[0].effect=NoSchedule \
-	--wait \
-	--timeout 10m
+workload:
+	kubectl apply -f workload/dummy_logger.yaml
 
 info:
 	@printf "  %-15s %s\n" "### k3d INFO ###"
@@ -131,3 +130,4 @@ re: clean all
 		loki \
 		alloy \
 		nginx \
+		workload \
