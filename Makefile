@@ -1,6 +1,6 @@
 
 
-all: create label
+all: create label taint grafana
 
 create:
 	k3d cluster create internship \
@@ -24,6 +24,30 @@ label:
 	node-role.kubernetes.io/worker=worker \
 	--overwrite
 
+# set the node to No scheduling, mean that if a pod is deployed
+# it can not be deployed in the node exept if the taint allow it
+taint:
+	kubectl taint node k3d-internship-agent-0 \
+	dedicated=monitoring:NoSchedule \
+  	--overwrite
+
+grafana:
+	helm repo add grafana-community \
+	https://grafana-community.github.io/helm-charts \
+	--force-update
+	helm repo update
+	helm search repo grafana-community/grafana
+	helm upgrade --install grafana \
+	grafana-community/grafana \
+	--namespace monitoring \
+	--create-namespace \
+	--values grafana_values.yaml \
+	--wait \
+	--timeout 10m
+
+grafana-pwd:
+	   kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
 info:
 	@printf "  %-15s %s\n" "### k3d INFO ###"
 	kubectl cluster-info
@@ -43,3 +67,6 @@ re: clean all
 		clean \
 		all \
 		re \
+		taint \
+		grafana \
+		grafana-pwd \
