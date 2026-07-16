@@ -117,6 +117,40 @@ clean:
 
 re: clean all
 
+help:
+	@echo "K3d Kubernetes Observability Lab"
+	@echo ""
+	@echo "Usage:"
+	@echo "  make <target>"
+	@echo ""
+	@echo "Cluster:"
+	@echo "  help          Show this help message"
+	@echo "  create        Create the k3d cluster"
+	@echo "  label         Add monitoring and worker node labels"
+	@echo "  taint         Reserve the monitoring node"
+	@echo "  info          Show cluster, node, pod, and Docker information"
+	@echo ""
+	@echo "Observability:"
+	@echo "  helm          Add and update Helm repositories"
+	@echo "  grafana       Install or upgrade Grafana"
+	@echo "  grafana-pwd   Print the Grafana administrator password"
+	@echo "  prometheus    Install or upgrade Prometheus"
+	@echo "  loki          Install or upgrade Loki"
+	@echo "  alloy         Install or upgrade Grafana Alloy"
+	@echo "  nginx         Install or upgrade ingress-nginx"
+	@echo ""
+	@echo "Workloads:"
+	@echo "  workload      Deploy the dummy logging workload"
+	@echo ""
+	@echo "Lifecycle:"
+	@echo "  all           Create the cluster and install everything"
+	@echo "  clean         Delete the k3d cluster"
+	@echo "  re            Delete and recreate the complete environment"
+	@echo ""
+	@echo "Service URLs:"
+	@echo "  Grafana:      http://grafana.localhost"
+	@echo "  Prometheus:   http://prometheus.localhost"
+
 .PHONY: create \
 		info \
 		clean \
@@ -131,3 +165,4 @@ re: clean all
 		alloy \
 		nginx \
 		workload \
+		help \
